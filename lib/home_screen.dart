@@ -1,10 +1,15 @@
 import 'dart:convert';
 
+import 'package:blur/blur.dart';
 import 'package:expragati/employee_model.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:expragati/login_screen.dart';
+import 'package:expragati/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -16,8 +21,6 @@ enum PunchState {
 
 
 class HomeScreen extends StatelessWidget {
-
-
 
   final EmployeeModel employeeModel;
 
@@ -34,15 +37,14 @@ class HomeScreen extends StatelessWidget {
     "emp_designation": "Blockchain Developer",
   };
 
+  String avatarUrl = "";
+
+
 
 
   @override
   Widget build(BuildContext context) {
-
-
-
     punchIn(String punchState) async {
-
       try {
         final String punchEndpoint = dotenv.get("PUNCH");
 
@@ -80,7 +82,6 @@ class HomeScreen extends StatelessWidget {
               "punch_time": now.toIso8601String(),
               // "punch_type": "out",
               "punch_type": punchState,
-
               "punch_from": "office"
             }
           })
@@ -93,7 +94,6 @@ class HomeScreen extends StatelessWidget {
           if (decodedBody["status"] == "success") {
             final snackBar = SnackBar(
               elevation: 0,
-
               behavior: SnackBarBehavior.floating,
               backgroundColor: Colors.transparent,
               content: AwesomeSnackbarContent(
@@ -129,9 +129,16 @@ class HomeScreen extends StatelessWidget {
               ..hideCurrentSnackBar()
               ..showSnackBar(snackBar);
           }
+        } else {
+          print(response.body.toString());
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Authentication failed, try again")));
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (BuildContext ctx) =>
+                  LoginScreen()));
         }
 
-        print(response.body.toString());
+        // print(response.statusCode);
       } catch (err) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err.toString())));
         print("error ${err.toString()}");
@@ -146,24 +153,39 @@ class HomeScreen extends StatelessWidget {
     final employeeData = employeeModel.employee!;
 
     return Scaffold(
-      backgroundColor: Colors.blueAccent,
-      body: Center(
+      backgroundColor: Colors.black,
+      body:Stack(
+        children: [
+
+          Positioned.fill(
+            child: Blur(
+              blurColor: Colors.black,
+              blur: 25.0,
+              child: SvgPicture.string(
+                homeScreenSVG,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
+      Center(
         child: Padding(
+
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               CircleAvatar(
-                radius: 50,
+                radius: 70,
                 backgroundImage: NetworkImage("https://api.multiavatar.com/${employeeData.empName}.png"),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               Center(
                 child: Text(
                   'Welcome Back,',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
 
@@ -174,90 +196,120 @@ class HomeScreen extends StatelessWidget {
               Text(
                 employeeData.empName ?? "NA",
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 27,
                   color: Colors.white,
                 ),
               ),
-              Text(
-                // employee["emp_designation"],
-                employeeData.empEmail ?? "NA",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                // employee["emp_designation"],
-                employeeData.empDesignation ?? "NA",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
-              Text(
-                employeeData.empWorkDept ?? "NA",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
 
-              SizedBox(height: 40),
+              SizedBox(height: 10),
+
+              Text(
+                // employee["emp_designation"],
+    "Contact: " + (employeeData.empNumber ?? "NA"),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+              ),
+              // SizedBox(height: 10),
+              Text(
+                // employee["emp_designation"],
+                "Role: " + (employeeData.empDesignation ?? "NA"),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+              ),
+              // Text(
+              //   employeeData.empWorkDept ?? "NA",
+              //   style: TextStyle(
+              //     fontSize: 16,
+              //     color: Colors.white70,
+              //   ),
+              // ),
+              SizedBox(height: 10,),
               SizedBox(
-                width: double.infinity,
-                height: 120,
+                // width: double.infinity,
+                height: 40,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await punchIn("in");
-                    // Add punch in logic
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.remove("token");
+                    await prefs.remove("name");
+                    await prefs.remove("contact");
+                    await prefs.remove("role");
+                    await prefs.remove("empid");
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                        builder: (BuildContext ctx) =>
+                            LoginScreen()));
                   },
-                  child: Text('Punch In 🚀', style: TextStyle(fontSize: 20),),
+                  child: Text('Logout', style: TextStyle(color: Colors.white,),),
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.green,
-                    // primary: Colors.green,
+                    backgroundColor: Colors.white24,
+                    // primary: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
+              // MaterialButton(onPressed: () async {
+              //   final prefs = await SharedPreferences.getInstance();
+              //   String res = prefs.getString("token")!;
+              //   print("all the values: " + res);
+              // }, child: Text("helllo", style: TextStyle(fontSize: 30, color: Colors.white),),),
               SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: 110,
+                child: ElevatedButton(
+
+                  onPressed: () async {
+                    await punchIn("in");
+                    // Add punch in logic
+                  },
+                  child: Text('Punch Attendance ', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.green),),
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    // backgroundColor: Colors.green,
+                    backgroundColor: Colors.white24,
+                    // side: BorderSide(
+                    //   color: Colors.green,
+                    //   width: 1.5,
+                    // ),
+                    // primary: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      // borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
+                      
+
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 1),
+              SizedBox(
+                width: double.infinity,
+                height: 70,
                 child: ElevatedButton(
                   onPressed: () async {
                     await punchIn("out");
-                    // final snackBar = SnackBar(
-                    //   /// need to set following properties for best effect of awesome_snackbar_content
-                    //   elevation: 0,
-                    //
-                    //   behavior: SnackBarBehavior.floating,
-                    //   backgroundColor: Colors.transparent,
-                    //   content: AwesomeSnackbarContent(
-                    //
-                    //     title: 'On Snap!',
-                    //     message:
-                    //     'This is an example error message that will be shown in the body of snackbar!',
-                    //
-                    //     /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
-                    //     contentType: ContentType.failure,
-                    //   ),
-                    // );
-                    //
-                    // ScaffoldMessenger.of(context)
-                    //   ..hideCurrentSnackBar()
-                    //   ..showSnackBar(snackBar);
-                    // Add punch out logic
                   },
-                  child: Text('Punch Out 🏕️', style: TextStyle(color: Colors.white,),),
+                  child: Text('Punch Out ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.red),),
+
+                  // child: Text('Punch Out 🏕️', style: TextStyle(color: Colors.white,),),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+                    backgroundColor: Colors.white24,
+                    // side: BorderSide(
+                    //
+                    //   color: Colors.red,
+                    //   width: 1.5,
+                    // ),
                     // primary: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      // borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
+                      
                     ),
                   ),
                 ),
@@ -266,6 +318,19 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+          Positioned(
+
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Text(
+              "</> with ❤️ by Wantedbear007",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      )
     );
   }
 }
