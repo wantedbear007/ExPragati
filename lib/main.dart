@@ -70,10 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (validate(userData)) {
       isAllowed = true;
     }
-    print("values");
-    userData.forEach((key, value) {
-      print('$key: $value');
-    });
+    // print("values");
+    // userData.forEach((key, value) {
+    //   print('$key: $value');
+    // });
   }
 
   @override
@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       empNumber: userData["contact"],
                       empDesignation: userData["role"]),
                   token: userData["token"]))
-          : LoginScreen(),
+          : const LoginScreen(),
     );
   }
 }

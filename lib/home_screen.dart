@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:blur/blur.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expragati/employee_model.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:expragati/login_screen.dart';
@@ -130,18 +131,16 @@ class HomeScreen extends StatelessWidget {
               ..showSnackBar(snackBar);
           }
         } else {
-          print(response.body.toString());
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Authentication failed, try again")));
+              const SnackBar(content: Text("Authentication failed, try again")));
           Navigator.pushReplacement(context, MaterialPageRoute(
               builder: (BuildContext ctx) =>
-                  LoginScreen()));
+                  const LoginScreen()));
         }
 
         // print(response.statusCode);
       } catch (err) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err.toString())));
-        print("error ${err.toString()}");
       }
 
 
@@ -176,12 +175,24 @@ class HomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              CircleAvatar(
-                radius: 70,
-                backgroundImage: NetworkImage("https://api.multiavatar.com/${employeeData.empName}.png"),
+              // CircleAvatar(
+              //   radius: 80,
+              //   backgroundImage: NetworkImage("https://api.multiavatar.com/${employeeData.empName}.png"),
+              // ),
+              CachedNetworkImage(
+                imageUrl: "https://api.multiavatar.com/${employeeData.empName}.png",
+                imageBuilder: (context, imageProvider) =>
+                    CircleAvatar(
+                      radius: 80,
+                      backgroundImage: imageProvider,
+                    ),
+                placeholder: (context, url) =>
+                const CircularProgressIndicator(),
+                errorWidget: (context, url, error) =>
+                const Icon(Icons.error, color: Colors.white),
               ),
-              SizedBox(height: 10),
-              Center(
+              const SizedBox(height: 10),
+              const Center(
                 child: Text(
                   'Welcome Back,',
                   style: TextStyle(
@@ -192,21 +203,21 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 employeeData.empName ?? "NA",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 27,
                   color: Colors.white,
                 ),
               ),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Text(
                 // employee["emp_designation"],
-    "Contact: " + (employeeData.empNumber ?? "NA"),
-                style: TextStyle(
+    "Contact: ${employeeData.empNumber ?? "NA"}",
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
                 ),
@@ -214,8 +225,8 @@ class HomeScreen extends StatelessWidget {
               // SizedBox(height: 10),
               Text(
                 // employee["emp_designation"],
-                "Role: " + (employeeData.empDesignation ?? "NA"),
-                style: TextStyle(
+                "Role: ${employeeData.empDesignation ?? "NA"}",
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
                 ),
@@ -227,7 +238,7 @@ class HomeScreen extends StatelessWidget {
               //     color: Colors.white70,
               //   ),
               // ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               SizedBox(
                 // width: double.infinity,
                 height: 40,
@@ -241,9 +252,8 @@ class HomeScreen extends StatelessWidget {
                     await prefs.remove("empid");
                     Navigator.pushReplacement(context, MaterialPageRoute(
                         builder: (BuildContext ctx) =>
-                            LoginScreen()));
+                            const LoginScreen()));
                   },
-                  child: Text('Logout', style: TextStyle(color: Colors.white,),),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white24,
                     // primary: Colors.red,
@@ -251,9 +261,12 @@ class HomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
+                  child: const Text('Logout', style: TextStyle(color: Colors.white,),),
                 ),
               ),
-              SizedBox(height: 20),
+
+
+              const SizedBox(height: 20),
               // MaterialButton(onPressed: () async {
               //   final prefs = await SharedPreferences.getInstance();
               //   String res = prefs.getString("token")!;
@@ -268,7 +281,6 @@ class HomeScreen extends StatelessWidget {
                     await punchIn("in");
                     // Add punch in logic
                   },
-                  child: Text('Punch Attendance ', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.green),),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     // backgroundColor: Colors.green,
@@ -278,13 +290,14 @@ class HomeScreen extends StatelessWidget {
                     //   width: 1.5,
                     // ),
                     // primary: Colors.green,
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       // borderRadius: BorderRadius.circular(50),
                       borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
                       
 
                     ),
                   ),
+                  child: const Text('Punch Attendance ', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.green),),
                 ),
               ),
               const SizedBox(height: 1),
@@ -295,7 +308,6 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () async {
                     await punchIn("out");
                   },
-                  child: Text('Punch Out ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.red),),
 
                   // child: Text('Punch Out 🏕️', style: TextStyle(color: Colors.white,),),
                   style: ElevatedButton.styleFrom(
@@ -306,12 +318,13 @@ class HomeScreen extends StatelessWidget {
                     //   width: 1.5,
                     // ),
                     // primary: Colors.red,
-                    shape: RoundedRectangleBorder(
+                    shape: const RoundedRectangleBorder(
                       // borderRadius: BorderRadius.circular(30),
                       borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
                       
                     ),
                   ),
+                  child: const Text('Punch Out ', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.red),),
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import 'package:blur/blur.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expragati/employee_model.dart';
 import 'package:expragati/home_screen.dart';
+import 'package:expragati/privacy.dart';
 import 'package:expragati/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,20 +27,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _welcomeMessage = 'Welcome, Login to your account';
+  String _welcomeMessage = welcomeMessages[0];
   late Timer _timer;
   int _currentLanguageIndex = 0;
 
 
   bool isRequestInProgress = false;
-
-
-  final List<String> _welcomeMessages = [
-    'Welcome', // English
-    'स्वागत हैं', // Hindi
-    'ਸਵਾਗਤ ਹੈ', // Punjabi
-  ];
-
   String avatarUrl = "";
 
   @override
@@ -52,9 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
     // 2 seconds
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       setState(() {
-        _welcomeMessage = _welcomeMessages[_currentLanguageIndex];
+        _welcomeMessage = welcomeMessages[_currentLanguageIndex];
         _currentLanguageIndex =
-            (_currentLanguageIndex + 1) % _welcomeMessages.length;
+            (_currentLanguageIndex + 1) % welcomeMessages.length;
       });
     });
   }
@@ -213,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
                         hintText: 'Enter your email',
-                        hintStyle: const TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.email_outlined,
                             color: Colors.white60),
                         filled: true,
@@ -264,12 +257,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           login_handler();
                         },
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           backgroundColor: Colors.white10,
@@ -279,8 +266,44 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           elevation: 40,
                         ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    MaterialButton(onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (BuildContext ctx) =>
+                      const PrivacyScreen()));
+                    }, child: Text("Read Privacy & Disclaimer", style: TextStyle(color: Colors.white60),),)
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   child: ElevatedButton(
+                    //    
+                    //     onPressed: () {
+                    //       login_handler();
+                    //     },
+                    //     // style: ElevatedButton.styleFrom(
+                    //     //   padding: const EdgeInsets.symmetric(vertical: 15),
+                    //     //   // backgroundColor: Colors.white10,
+                    //     //   // foregroundColor: Colors.white60,
+                    //     //   shape: RoundedRectangleBorder(
+                    //     //     borderRadius: BorderRadius.circular(30),
+                    //     //   ),
+                    //     //   elevation: 40,
+                    //     // ),
+                    //     child: const Text(
+                    //       'Read Privacy & Disclaimer',
+                    //       style: TextStyle(
+                    //         fontSize: 18,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
