@@ -39,16 +39,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void initState() {
-    super.initState();
-    _getToken();
-  }
-
   var userData = HashMap<String, String>();
   bool isAllowed = false;
 
-  // validate user
+  @override
+  void initState() {
+    super.initState();
+    _initializeToken();
+  }
+
   bool validate(HashMap<String, String> data) {
     for (var entry in data.entries) {
       if (entry.value.isEmpty) {
@@ -58,8 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return true;
   }
 
-  // check token
-  Future<void> _getToken() async {
+  Future<void> _initializeToken() async {
     final prefs = await SharedPreferences.getInstance();
     userData["token"] = prefs.getString("token") ?? "";
     userData["name"] = prefs.getString("name") ?? "";
@@ -67,28 +65,27 @@ class _MyHomePageState extends State<MyHomePage> {
     userData["role"] = prefs.getString("role") ?? "";
     userData["empid"] = prefs.getString("empid") ?? "";
 
-    if (validate(userData)) {
-      isAllowed = true;
-    }
-    // print("values");
-    // userData.forEach((key, value) {
-    //   print('$key: $value');
-    // });
+    setState(() {
+      isAllowed = validate(userData);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: isAllowed
-          ? HomeScreen(
-              employeeModel: EmployeeModel(
-                  employee: Employee(
-                      empId: userData["empid"],
-                      empName: userData["name"],
-                      empNumber: userData["contact"],
-                      empDesignation: userData["role"]),
-                  token: userData["token"]))
-          : const LoginScreen(),
+    if (!isAllowed) {
+      return const LoginScreen();
+    }
+
+    return HomeScreen(
+      employeeModel: EmployeeModel(
+        employee: Employee(
+          empId: userData["empid"],
+          empName: userData["name"],
+          empNumber: userData["contact"],
+          empDesignation: userData["role"],
+        ),
+        token: userData["token"]!,
+      ),
     );
   }
 }
